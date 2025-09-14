@@ -1,4 +1,4 @@
-import { SymbolType, WinLine } from '@/types';
+import { SymbolType, WinLine, ReelPosition } from '@/types';
 import { SYMBOLS, PAYLINES } from '@/constants/config';
 
 export class WinlineChecker {
@@ -15,7 +15,7 @@ export class WinlineChecker {
     // Check each payline
     for (const payline of PAYLINES) {
       const symbols = this.getSymbolsOnPayline(grid, payline.positions);
-      const winResult = this.checkPaylineWin(symbols, payline.id);
+      const winResult = this.checkPaylineWin(symbols, payline.id, payline.positions, grid);
       
       if (winResult) {
         winLines.push(winResult);
@@ -43,9 +43,29 @@ export class WinlineChecker {
   }
 
   /**
+   * Convert positions to ReelPosition array
+   */
+  private createReelPositions(
+    positions: [number, number][],
+    symbols: SymbolType[],
+    count: number
+  ): ReelPosition[] {
+    return positions.slice(0, count).map(([row, col], index) => ({
+      symbol: symbols[index],
+      row,
+      col
+    }));
+  }
+
+  /**
    * Check if a payline has a winning combination
    */
-  private checkPaylineWin(symbols: SymbolType[], lineId: number): WinLine | null {
+  private checkPaylineWin(
+    symbols: SymbolType[], 
+    lineId: number,
+    positions: [number, number][],
+    grid: SymbolType[][]
+  ): WinLine | null {
     if (!symbols || symbols.length === 0) return null;
 
     // Start from the leftmost symbol
@@ -67,11 +87,13 @@ export class WinlineChecker {
       if (firstSymbol === 'diamond') {
         const symbolData = SYMBOLS['diamond'];
         if (count >= 3 && symbolData.multiplier[count - 1] > 0) {
+          const payout = symbolData.multiplier[count - 1];
           return {
             lineId,
             symbols: Array(count).fill('diamond'),
-            payout: symbolData.multiplier[count - 1],
-            // REMOVED: symbolCount - not needed, use symbols.length
+            positions: this.createReelPositions(positions, symbols, count),
+            payout,
+            multiplier: payout
           };
         }
         return null;
@@ -91,11 +113,13 @@ export class WinlineChecker {
     // Check if we have a win (minimum 3 matching symbols)
     const symbolData = SYMBOLS[firstSymbol];
     if (count >= 3 && symbolData && symbolData.multiplier[count - 1] > 0) {
+      const payout = symbolData.multiplier[count - 1];
       return {
         lineId,
         symbols: symbols.slice(0, count),
-        payout: symbolData.multiplier[count - 1],
-        // REMOVED: symbolCount - not needed, use symbols.length
+        positions: this.createReelPositions(positions, symbols, count),
+        payout,
+        multiplier: payout
       };
     }
 
@@ -160,7 +184,6 @@ export class WinlineChecker {
     if (!payline) return [];
     
     // Return only the positions that contributed to the win
-    // FIXED: Use symbols.length instead of symbolCount
     return payline.positions.slice(0, winLine.symbols.length);
   }
 }
