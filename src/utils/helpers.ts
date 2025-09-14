@@ -85,7 +85,7 @@ export function throttle<T extends (...args: any[]) => any>(
   
   return function executedFunction(...args: Parameters<T>) {
     if (!inThrottle) {
-      func.apply(this, args);
+      func(...args);  // FIXED: Simply call the function directly instead of using apply
       inThrottle = true;
       setTimeout(() => inThrottle = false, limit);
     }
