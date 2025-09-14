@@ -71,7 +71,7 @@ export class WinlineChecker {
             lineId,
             symbols: Array(count).fill('diamond'),
             payout: symbolData.multiplier[count - 1],
-            symbolCount: count,
+            // REMOVED: symbolCount - not needed, use symbols.length
           };
         }
         return null;
@@ -95,7 +95,7 @@ export class WinlineChecker {
         lineId,
         symbols: symbols.slice(0, count),
         payout: symbolData.multiplier[count - 1],
-        symbolCount: count,
+        // REMOVED: symbolCount - not needed, use symbols.length
       };
     }
 
@@ -160,6 +160,7 @@ export class WinlineChecker {
     if (!payline) return [];
     
     // Return only the positions that contributed to the win
-    return payline.positions.slice(0, winLine.symbolCount);
+    // FIXED: Use symbols.length instead of symbolCount
+    return payline.positions.slice(0, winLine.symbols.length);
   }
 }
