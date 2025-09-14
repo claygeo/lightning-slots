@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "canvas-confetti": "^1.9.3",
+    "react-confetti": "^6.1.0",
     "clsx": "^2.1.0",
     "framer-motion": "^11.18.2",
     "howler": "^2.2.4",
