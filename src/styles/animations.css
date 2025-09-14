@@ -1,0 +1,288 @@
+/* Reel Spinning Animation */
+@keyframes reelSpin {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+.reel-spinning {
+  animation: reelSpin 0.1s linear infinite;
+}
+
+/* Symbol Blur Effect */
+@keyframes symbolBlur {
+  0%, 100% {
+    filter: blur(0);
+  }
+  50% {
+    filter: blur(4px);
+  }
+}
+
+.symbol-blur {
+  animation: symbolBlur 0.2s ease-in-out;
+}
+
+/* Win Line Animation */
+@keyframes winLine {
+  0% {
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.win-line {
+  stroke-dasharray: 1000;
+  animation: winLine 0.5s ease-out forwards;
+}
+
+/* Lightning Strike */
+@keyframes lightningStrike {
+  0%, 100% {
+    opacity: 0;
+  }
+  10%, 90% {
+    opacity: 1;
+  }
+  20%, 80% {
+    opacity: 0.5;
+  }
+}
+
+.lightning-strike {
+  animation: lightningStrike 0.5s ease-out;
+}
+
+/* Coin Fall */
+@keyframes coinFall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 1;
+  }
+}
+
+.coin-falling {
+  animation: coinFall 3s linear;
+}
+
+/* Power Meter Fill */
+@keyframes powerFill {
+  0% {
+    width: 0;
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    width: var(--fill-width);
+    background-position: 0% 50%;
+  }
+}
+
+.power-meter-fill {
+  background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
+  background-size: 200% 100%;
+  animation: powerFill 0.5s ease-out forwards;
+}
+
+/* Level Up Celebration */
+@keyframes levelUp {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+.level-up-animation {
+  animation: levelUp 1s ease-out;
+}
+
+/* Achievement Unlock */
+@keyframes achievementUnlock {
+  0% {
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(0) scale(1.1);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.achievement-unlock {
+  animation: achievementUnlock 0.5s ease-out;
+}
+
+/* Big Win Pulse */
+@keyframes bigWinPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+}
+
+.big-win-pulse {
+  animation: bigWinPulse 1s ease-in-out infinite;
+}
+
+/* Jackpot Rainbow */
+@keyframes jackpotRainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.jackpot-rainbow {
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #9400d3,
+    #ff0000
+  );
+  background-size: 200% 100%;
+  animation: jackpotRainbow 2s linear infinite;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Spin Button Glow */
+@keyframes spinButtonGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8),
+                0 0 60px rgba(255, 215, 0, 0.4);
+  }
+}
+
+.spin-button-ready {
+  animation: spinButtonGlow 2s ease-in-out infinite;
+}
+
+/* Multiplier Bounce */
+@keyframes multiplierBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-10px);
+  }
+  75% {
+    transform: translateY(5px);
+  }
+}
+
+.multiplier-bounce {
+  animation: multiplierBounce 1s ease-in-out infinite;
+}
+
+/* Symbol Win Sparkle */
+@keyframes symbolSparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.symbol-sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #fff 0%, transparent 70%);
+  animation: symbolSparkle 1s ease-out infinite;
+}
+
+/* Floating Coins Background */
+@keyframes floatingCoins {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.floating-coin {
+  position: fixed;
+  font-size: 30px;
+  animation: floatingCoins 10s linear infinite;
+}
+
+/* Lightning Bolt Flash */
+@keyframes lightningBolt {
+  0%, 100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+  45%, 55% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1.2);
+  }
+}
+
+.lightning-bolt {
+  animation: lightningBolt 2s ease-in-out infinite;
+}
