@@ -39,8 +39,8 @@ export default function Paylines({ winLines, highlightedLine }: PaylinesProps) {
     const cellWidth = 100 / COLUMNS;
     const cellHeight = 100 / ROWS;
     
-    // Only trace through winning symbols
-    const winningPositions = paylineConfig.positions.slice(0, activeLine.symbolCount);
+    // Only trace through winning symbols - FIXED: Use symbols.length instead of symbolCount
+    const winningPositions = paylineConfig.positions.slice(0, activeLine.symbols.length);
     
     // Calculate exact center points for each cell
     const points = winningPositions.map(([row, col]) => ({
@@ -72,7 +72,8 @@ export default function Paylines({ winLines, highlightedLine }: PaylinesProps) {
     const boxWidth = cellWidth * boxScale;
     const boxHeight = cellHeight * boxScale;
     
-    const winningPositions = paylineConfig.positions.slice(0, activeLine.symbolCount);
+    // FIXED: Use symbols.length instead of symbolCount
+    const winningPositions = paylineConfig.positions.slice(0, activeLine.symbols.length);
     
     return winningPositions.map(([row, col], index) => {
       // Center the smaller box within the cell
@@ -188,7 +189,8 @@ export default function Paylines({ winLines, highlightedLine }: PaylinesProps) {
           />
           
           {/* Small center dots on winning symbols */}
-          {paylineConfig.positions.slice(0, activeLine.symbolCount).map(([row, col], index) => {
+          {/* FIXED: Use symbols.length instead of symbolCount */}
+          {paylineConfig.positions.slice(0, activeLine.symbols.length).map(([row, col], index) => {
             const cellWidth = 100 / 5;
             const cellHeight = 100 / 3;
             const x = (col * cellWidth) + (cellWidth / 2);
