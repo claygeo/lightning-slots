@@ -101,14 +101,14 @@ export default function HomePage() {
           PLAY NOW
         </motion.button>
 
-        {/* Demo Notice */}
+        {/* Demo Notice - Updated Text */}
         <motion.div
           className={styles.demoNotice}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          <p>🎮 Demo Mode: 1000 Free Credits</p>
+          <p>💰 Start with 1000 Credits</p>
         </motion.div>
       </motion.div>
 
