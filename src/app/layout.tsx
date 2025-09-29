@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -10,13 +10,19 @@ export const metadata: Metadata = {
   description: 'Experience the thrill of Lightning Slots™ - a modern slot machine with gamification elements, power meter bonuses, and lightning rounds!',
   keywords: 'slots, casino, gambling, online slots, lightning slots, gamified slots',
   authors: [{ name: 'Lightning Slots' }],
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
-  themeColor: '#1a1a2e',
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#1a1a2e',
 };
 
 export default function RootLayout({
