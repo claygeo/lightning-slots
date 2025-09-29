@@ -51,3 +51,6 @@ export default function Button({
     </motion.button>
   );
 }
+
+// Named export for compatibility
+export { Button };

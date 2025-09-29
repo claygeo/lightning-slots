@@ -38,6 +38,11 @@ interface GameStore {
   reelPositions: number[][];
   reelSymbols: string[][];
   
+  // Authentication Integration
+  isLoggedIn: boolean;
+  username: string | null;
+  playerId: string | null;
+  
   // Actions
   spin: () => void;
   stopSpin: (winResult: WinResult) => void;
@@ -64,6 +69,11 @@ interface GameStore {
   toggleMusic: () => void;
   setAnimationSpeed: (speed: 'slow' | 'normal' | 'fast') => void;
   toggleQuickSpin: () => void;
+  
+  // Authentication Actions - FIXED
+  loadUserProgress: (player: any) => void;
+  getProgressForSync: () => any;
+  signOut: () => void;
   
   // Utility Actions
   resetGame: () => void;
@@ -110,6 +120,11 @@ const initialState = {
   // Reel State
   reelPositions: Array(5).fill([0, 1, 2]),
   reelSymbols: Array(5).fill(['cherry', 'cherry', 'cherry']),
+  
+  // Authentication
+  isLoggedIn: false,
+  username: null,
+  playerId: null,
 };
 
 export const useGameStore = create<GameStore>()(
@@ -134,7 +149,7 @@ export const useGameStore = create<GameStore>()(
         get().incrementPowerMeter();
         
         // Add XP for spinning
-        get().addExperience(LEVEL_CONFIG.XP_PER_SPIN);
+        get().addExperience(LEVEL_CONFIG.XP_PER_SPIN * 0.5);
       },
       
       stopSpin: (winResult: WinResult) => {
@@ -151,12 +166,11 @@ export const useGameStore = create<GameStore>()(
         // Update stats and XP
         if (winAmount > 0) {
           get().updateStats(winAmount);
-          // Fixed: Use a reasonable XP calculation
-          const xpEarned = LEVEL_CONFIG.XP_PER_WIN + Math.floor(winResult.totalWin * 2);
+          const xpEarned = Math.floor(LEVEL_CONFIG.XP_PER_WIN + (winResult.totalWin * 0.5));
           get().addExperience(xpEarned);
           
-          // Check achievements
-          if (winAmount >= 100 * state.bet) {
+          // Achievement checks
+          if (winAmount >= 50 * state.bet) {
             get().unlockAchievement('big_win');
           }
           if (winResult.isJackpot) {
@@ -181,7 +195,7 @@ export const useGameStore = create<GameStore>()(
       },
       
       updateBalance: (amount: number) => {
-        set(state => ({ balance: state.balance + amount }));
+        set(state => ({ balance: Math.max(0, state.balance + amount) }));
       },
       
       toggleAutoPlay: () => set(state => ({ isAutoPlay: !state.isAutoPlay })),
@@ -191,7 +205,8 @@ export const useGameStore = create<GameStore>()(
       // Power Meter & Lightning Round
       incrementPowerMeter: () => {
         const state = get();
-        const newMeter = Math.min(state.powerMeter + 1, GAME_CONFIG.POWER_METER_MAX);
+        const increment = Math.random() < 0.3 ? 1 : 0;
+        const newMeter = Math.min(state.powerMeter + increment, GAME_CONFIG.POWER_METER_MAX);
         set({ powerMeter: newMeter });
         
         if (newMeter >= GAME_CONFIG.POWER_METER_MAX) {
@@ -247,7 +262,7 @@ export const useGameStore = create<GameStore>()(
         }));
       },
       
-      // FIXED Progression System
+      // Progression System
       addExperience: (xp: number) => {
         const state = get();
         let newExperience = state.experience + xp;
@@ -258,20 +273,17 @@ export const useGameStore = create<GameStore>()(
         while (newExperience >= currentExperienceToNext) {
           newExperience = newExperience - currentExperienceToNext;
           currentLevel++;
-          // Calculate XP needed for next level
           currentExperienceToNext = Math.floor(
-            LEVEL_CONFIG.BASE_XP * Math.pow(LEVEL_CONFIG.XP_MULTIPLIER, currentLevel - 1)
+            LEVEL_CONFIG.BASE_XP * Math.pow(LEVEL_CONFIG.XP_MULTIPLIER * 1.5, currentLevel - 1)
           );
         }
         
-        // Update state with new values
         set({
           experience: newExperience,
           level: currentLevel,
           experienceToNext: currentExperienceToNext,
         });
         
-        // If we leveled up, trigger achievement
         if (currentLevel > state.level) {
           get().unlockAchievement(`level_${currentLevel}`);
         }
@@ -281,7 +293,7 @@ export const useGameStore = create<GameStore>()(
         const state = get();
         const newLevel = state.level + 1;
         const newExperienceToNext = Math.floor(
-          LEVEL_CONFIG.BASE_XP * Math.pow(LEVEL_CONFIG.XP_MULTIPLIER, newLevel - 1)
+          LEVEL_CONFIG.BASE_XP * Math.pow(LEVEL_CONFIG.XP_MULTIPLIER * 1.5, newLevel - 1)
         );
         
         set({
@@ -290,7 +302,6 @@ export const useGameStore = create<GameStore>()(
           experienceToNext: newExperienceToNext,
         });
         
-        // Achievement for leveling up
         get().unlockAchievement(`level_${newLevel}`);
       },
       
@@ -298,7 +309,6 @@ export const useGameStore = create<GameStore>()(
         const state = get();
         if (!state.achievements.includes(achievementId)) {
           set({ achievements: [...state.achievements, achievementId] });
-          // Award XP for achievement
           get().addExperience(LEVEL_CONFIG.XP_PER_ACHIEVEMENT);
         }
       },
@@ -317,6 +327,48 @@ export const useGameStore = create<GameStore>()(
       setAnimationSpeed: (speed) => set({ animationSpeed: speed }),
       toggleQuickSpin: () => set(state => ({ quickSpin: !state.quickSpin })),
       
+      // FIXED Authentication Integration
+      loadUserProgress: (player: any) => {
+        console.log('Loading user progress:', player);
+        set({
+          isLoggedIn: true,
+          username: player.username,
+          playerId: player.id,
+          // Load progress from database
+          balance: player.balance || GAME_CONFIG.STARTING_BALANCE,
+          level: player.level || 1,
+          experience: player.experience || 0,
+          experienceToNext: player.experienceToNext || LEVEL_CONFIG.BASE_XP,
+          totalSpins: player.total_spins || 0,
+          totalWins: player.total_wins || 0,
+          biggestWin: player.biggest_win || 0,
+          achievements: player.achievements || [],
+        });
+      },
+      
+      getProgressForSync: () => {
+        const state = get();
+        return {
+          balance: state.balance,
+          level: state.level,
+          experience: state.experience,
+          total_spins: state.totalSpins,
+          total_wins: state.totalWins,
+          biggest_win: state.biggestWin,
+          achievements: state.achievements,
+        };
+      },
+      
+      signOut: () => {
+        // Only reset auth state, keep guest progress
+        set({
+          isLoggedIn: false,
+          username: null,
+          playerId: null,
+          // Keep current progress for guest mode
+        });
+      },
+      
       // Utility
       resetGame: () => {
         set(initialState);
@@ -330,17 +382,20 @@ export const useGameStore = create<GameStore>()(
       name: 'lightning-slots-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        balance: state.balance,
-        level: state.level,
-        experience: state.experience,
-        experienceToNext: state.experienceToNext,
-        totalSpins: state.totalSpins,
-        totalWins: state.totalWins,
-        biggestWin: state.biggestWin,
-        achievements: state.achievements,
+        // Persist settings and guest progress only
         soundEnabled: state.soundEnabled,
         musicEnabled: state.musicEnabled,
         animationSpeed: state.animationSpeed,
+        quickSpin: state.quickSpin,
+        // Persist guest progress only when not logged in
+        balance: !state.isLoggedIn ? state.balance : GAME_CONFIG.STARTING_BALANCE,
+        level: !state.isLoggedIn ? state.level : 1,
+        experience: !state.isLoggedIn ? state.experience : 0,
+        experienceToNext: !state.isLoggedIn ? state.experienceToNext : LEVEL_CONFIG.BASE_XP,
+        totalSpins: !state.isLoggedIn ? state.totalSpins : 0,
+        totalWins: !state.isLoggedIn ? state.totalWins : 0,
+        biggestWin: !state.isLoggedIn ? state.biggestWin : 0,
+        achievements: !state.isLoggedIn ? state.achievements : [],
       }),
     }
   )

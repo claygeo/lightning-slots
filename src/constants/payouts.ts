@@ -1,5 +1,5 @@
 /**
- * Payout configuration and calculation utilities
+ * Balanced payout configuration for realistic slot gameplay
  */
 
 export interface PayoutTable {
@@ -11,60 +11,60 @@ export interface PayoutTable {
   isWild?: boolean;
 }
 
-// Main payout table
+// BALANCED payout table - much more realistic than before
 export const PAYOUT_TABLE: PayoutTable[] = [
   {
     symbol: 'cherry',
     name: 'Cherry',
-    x3: 2,
-    x4: 5,
-    x5: 10,
+    x3: 1,    // Was 2 - reduced for balance
+    x4: 3,    // Was 5 - reduced for balance
+    x5: 6,    // Was 10 - reduced for balance
   },
   {
     symbol: 'lemon',
     name: 'Lemon',
-    x3: 3,
-    x4: 8,
-    x5: 15,
+    x3: 2,    // Was 3 - slightly reduced
+    x4: 5,    // Was 8 - reduced for balance
+    x5: 10,   // Was 15 - reduced for balance
   },
   {
     symbol: 'bell',
     name: 'Bell',
-    x3: 5,
-    x4: 15,
-    x5: 30,
+    x3: 3,    // Was 5 - reduced for balance
+    x4: 8,    // Was 15 - reduced for balance
+    x5: 20,   // Was 30 - reduced for balance
   },
   {
     symbol: 'bar',
     name: 'Bar',
-    x3: 10,
-    x4: 25,
-    x5: 50,
+    x3: 5,    // Was 10 - reduced for balance
+    x4: 15,   // Was 25 - reduced for balance
+    x5: 35,   // Was 50 - reduced for balance
   },
   {
     symbol: 'seven',
     name: 'Seven',
-    x3: 20,
-    x4: 50,
-    x5: 100,
+    x3: 10,   // Was 20 - reduced for balance
+    x4: 30,   // Was 50 - reduced for balance
+    x5: 75,   // Was 100 - reduced for balance
   },
   {
     symbol: 'diamond',
     name: 'Diamond (Wild)',
-    x3: 50,
-    x4: 200,
-    x5: 500,
+    x3: 25,   // Was 50 - reduced for balance
+    x4: 100,  // Was 200 - reduced for balance
+    x5: 250,  // Was 500 - reduced for balance
     isWild: true,
   },
 ];
 
-// Win categories for display
+// Adjusted win categories for better balance
 export const WIN_CATEGORIES = {
-  SMALL: { min: 0, max: 5, label: 'WIN', color: '#FFD700' },
-  MEDIUM: { min: 5, max: 20, label: 'NICE WIN', color: '#FFA500' },
-  BIG: { min: 20, max: 100, label: 'BIG WIN', color: '#FF6347' },
-  MEGA: { min: 100, max: 500, label: 'MEGA WIN', color: '#FF1493' },
-  JACKPOT: { min: 500, max: Infinity, label: 'JACKPOT', color: '#9400D3' },
+  SMALL: { min: 0, max: 3, label: 'WIN', color: '#FFD700' },
+  MEDIUM: { min: 3, max: 15, label: 'NICE WIN', color: '#FFA500' },
+  BIG: { min: 15, max: 50, label: 'BIG WIN', color: '#FF6347' },
+  MEGA: { min: 50, max: 150, label: 'MEGA WIN', color: '#FF1493' },
+  JACKPOT: { min: 150, max: Infinity, label: 'JACKPOT', color: '#9400D3' },
 };
 
 /**
@@ -133,20 +133,63 @@ export function getPayoutInfo(symbol: string): PayoutTable | undefined {
 }
 
 /**
- * Check if win qualifies for special effects
+ * Check if win qualifies for special effects - ADJUSTED THRESHOLDS
  */
 export function getWinEffects(multiplier: number): {
   confetti: boolean;
   sound: 'win' | 'bigwin' | 'jackpot';
   duration: number;
 } {
-  if (multiplier >= 500) {
+  if (multiplier >= 150) {
     return { confetti: true, sound: 'jackpot', duration: 5000 };
-  } else if (multiplier >= 100) {
+  } else if (multiplier >= 50) {
     return { confetti: true, sound: 'bigwin', duration: 4000 };
-  } else if (multiplier >= 20) {
+  } else if (multiplier >= 15) {
     return { confetti: false, sound: 'bigwin', duration: 3000 };
   } else {
     return { confetti: false, sound: 'win', duration: 2000 };
   }
+}
+
+/**
+ * Calculate progressive betting recommendations
+ */
+export function getBettingStrategy(balance: number, currentBet: number): {
+  recommended: number;
+  safe: number;
+  aggressive: number;
+} {
+  const balanceRatio = balance / 1000; // Relative to starting balance
+  
+  return {
+    recommended: Math.max(1, Math.floor(balance * 0.02)), // 2% of balance
+    safe: Math.max(1, Math.floor(balance * 0.01)),        // 1% of balance
+    aggressive: Math.max(1, Math.floor(balance * 0.05)),  // 5% of balance
+  };
+}
+
+/**
+ * Calculate session statistics
+ */
+export function calculateSessionStats(
+  spins: number,
+  totalWagered: number,
+  totalWon: number,
+  startingBalance: number,
+  currentBalance: number
+): {
+  rtp: number;
+  netResult: number;
+  hitRate: number;
+  averageWin: number;
+} {
+  const netResult = currentBalance - startingBalance;
+  const rtp = totalWagered > 0 ? (totalWon / totalWagered) : 0;
+  
+  return {
+    rtp,
+    netResult,
+    hitRate: spins > 0 ? (totalWon > 0 ? 0.18 : 0) : 0, // Theoretical hit rate
+    averageWin: spins > 0 ? totalWon / spins : 0,
+  };
 }
