@@ -19,6 +19,7 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [userRank, setUserRank] = useState<number>(0);
+  const [isMobile, setIsMobile] = useState(false);
   
   const { user } = useAuth();
 
@@ -28,7 +29,17 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
   const daysRemaining = Math.ceil((tournamentEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   useEffect(() => {
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
     loadLeaderboard();
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Calculate tournament points using weighted scoring
@@ -110,7 +121,7 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
     <div style={{
       background: 'linear-gradient(135deg, #1a237e 0%, #3949ab 100%)',
       borderRadius: '16px',
-      padding: '20px',
+      padding: isMobile ? '16px 12px' : '20px',
       width: '100%',
       maxWidth: '100%',
       margin: '0 auto',
@@ -127,7 +138,7 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
         background: 'linear-gradient(135deg, #ff6b00, #ff9100)',
         padding: '4px 10px',
         borderRadius: '20px',
-        fontSize: '11px',
+        fontSize: isMobile ? '10px' : '11px',
         fontWeight: 'bold',
         boxShadow: '0 2px 8px rgba(255, 107, 0, 0.4)'
       }}>
@@ -137,20 +148,20 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
       {/* Header */}
       <div style={{
         textAlign: 'center',
-        marginBottom: '16px'
+        marginBottom: isMobile ? '12px' : '16px'
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '12px',
+          gap: isMobile ? '8px' : '12px',
           marginBottom: '8px'
         }}>
-          <span style={{ fontSize: '24px' }}>🏆</span>
+          <span style={{ fontSize: isMobile ? '20px' : '24px' }}>🏆</span>
           <h1 style={{
-            fontSize: '24px',
+            fontSize: isMobile ? '18px' : '24px',
             fontWeight: 'bold',
-            letterSpacing: '2px',
+            letterSpacing: isMobile ? '1px' : '2px',
             textTransform: 'uppercase',
             margin: 0,
             background: 'linear-gradient(90deg, #FFD700, #FFA500)',
@@ -158,12 +169,12 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
           }}>
-            TOURNAMENT STANDINGS
+            TOURNAMENT {!isMobile && 'STANDINGS'}
           </h1>
-          <span style={{ fontSize: '24px' }}>🏆</span>
+          <span style={{ fontSize: isMobile ? '20px' : '24px' }}>🏆</span>
         </div>
         <p style={{
-          fontSize: '12px',
+          fontSize: isMobile ? '10px' : '12px',
           color: 'rgba(255, 255, 255, 0.8)',
           margin: '4px 0'
         }}>
@@ -175,46 +186,50 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
       <div style={{
         background: 'linear-gradient(90deg, rgba(255, 215, 0, 0.15), rgba(255, 140, 0, 0.15))',
         borderRadius: '8px',
-        padding: '8px 12px',
+        padding: isMobile ? '6px 8px' : '8px 12px',
         marginBottom: '12px',
         border: '1px solid rgba(255, 215, 0, 0.25)',
-        fontSize: '11px',
+        fontSize: isMobile ? '10px' : '11px',
         color: 'rgba(255, 255, 255, 0.95)',
         display: 'flex',
         justifyContent: 'center',
-        gap: '20px',
+        gap: isMobile ? '12px' : '20px',
         flexWrap: 'wrap'
       }}>
-        <span>🥇 1st Place: $30 Food Delivery</span>
-        <span>🥈 2nd Place: Candy Pack</span>
-        <span>🥉 3rd Place: Candy</span>
+        <span>🥇 1st: $30 Food</span>
+        <span>🥈 2nd: Candy Pack</span>
+        <span>🥉 3rd: Candy</span>
       </div>
 
-      {/* Column Headers */}
+      {/* Column Headers - Mobile Responsive */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '45px 1fr 90px 70px 80px 90px',
-        gap: '8px',
-        padding: '10px 12px',
+        gridTemplateColumns: isMobile ? '35px 1fr 65px 35px' : '45px 1fr 90px 70px 80px 90px',
+        gap: isMobile ? '4px' : '8px',
+        padding: isMobile ? '8px 6px' : '10px 12px',
         background: 'rgba(0, 0, 0, 0.3)',
         borderRadius: '8px',
         marginBottom: '8px',
-        fontSize: '10px',
+        fontSize: isMobile ? '9px' : '10px',
         fontWeight: '700',
         letterSpacing: '0.5px',
         textTransform: 'uppercase'
       }}>
-        <div>Rank</div>
+        <div style={{ textAlign: 'center' }}>#</div>
         <div>Player</div>
         <div style={{ textAlign: 'center' }}>Points</div>
-        <div style={{ textAlign: 'center' }}>Level</div>
-        <div style={{ textAlign: 'center' }}>Balance</div>
-        <div style={{ textAlign: 'center' }}>Best Win</div>
+        <div style={{ textAlign: 'center' }}>Lvl</div>
+        {!isMobile && (
+          <>
+            <div style={{ textAlign: 'center' }}>Balance</div>
+            <div style={{ textAlign: 'center' }}>Best Win</div>
+          </>
+        )}
       </div>
 
       {/* Leaderboard Entries */}
       <div style={{
-        maxHeight: '400px',
+        maxHeight: isMobile ? '350px' : '400px',
         overflowY: 'auto',
         overflowX: 'hidden',
         paddingRight: '4px'
@@ -285,9 +300,9 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
                 key={`${entry.username}-${index}`}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '45px 1fr 90px 70px 80px 90px',
-                  gap: '8px',
-                  padding: '12px',
+                  gridTemplateColumns: isMobile ? '35px 1fr 65px 35px' : '45px 1fr 90px 70px 80px 90px',
+                  gap: isMobile ? '4px' : '8px',
+                  padding: isMobile ? '10px 6px' : '12px',
                   background: isCurrentUser 
                     ? 'linear-gradient(90deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.2))'
                     : isPrizePosition 
@@ -299,7 +314,7 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
                       : 'rgba(255, 255, 255, 0.03)',
                   borderRadius: '8px',
                   marginBottom: '3px',
-                  fontSize: '13px',
+                  fontSize: isMobile ? '11px' : '13px',
                   fontWeight: '500',
                   border: isCurrentUser 
                     ? '2px solid rgba(255, 215, 0, 0.6)' 
@@ -311,12 +326,12 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
                   position: 'relative'
                 }}
                 onMouseEnter={(e) => {
-                  if (!isCurrentUser && !isPrizePosition) {
+                  if (!isCurrentUser && !isPrizePosition && !isMobile) {
                     e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isCurrentUser && !isPrizePosition) {
+                  if (!isCurrentUser && !isPrizePosition && !isMobile) {
                     e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
                   }
                 }}
@@ -326,17 +341,17 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: isTop3 ? '18px' : '14px',
+                  fontSize: isTop3 && !isMobile ? '18px' : isMobile && isTop3 ? '16px' : '14px',
                   fontWeight: 'bold'
                 }}>
                   {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
                 </div>
                 
-                {/* Player Name */}
+                {/* Player Name - Mobile optimized */}
                 <div style={{ 
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: isMobile ? '4px' : '8px',
                   overflow: 'hidden',
                   minWidth: 0
                 }}>
@@ -345,30 +360,32 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     color: isCurrentUser ? '#FFD700' : isPrizePosition ? '#FFF' : 'rgba(255, 255, 255, 0.9)',
-                    fontWeight: isCurrentUser || isPrizePosition ? 'bold' : '500'
+                    fontWeight: isCurrentUser || isPrizePosition ? 'bold' : '500',
+                    fontSize: isMobile ? '11px' : '13px',
+                    maxWidth: isMobile ? '80px' : 'none'
                   }}>
                     {entry.username}
                   </span>
-                  {/* Prize Badge - Next to name */}
-                  {isPrizePosition && (
+                  {/* Only show badge on desktop or for prize positions on mobile */}
+                  {(isPrizePosition && !isMobile) && (
                     <span style={{
                       background: rank === 1 ? '#FFD700' : rank === 2 ? '#C0C0C0' : '#CD7F32',
                       color: '#000',
-                      fontSize: '9px',
+                      fontSize: '8px',
                       fontWeight: 'bold',
-                      padding: '2px 6px',
-                      borderRadius: '10px',
+                      padding: '1px 4px',
+                      borderRadius: '8px',
                       whiteSpace: 'nowrap',
                       flexShrink: 0
                     }}>
-                      {rank === 1 ? '1ST PLACE' : rank === 2 ? '2ND PLACE' : '3RD PLACE'}
+                      {rank === 1 ? '1ST' : rank === 2 ? '2ND' : '3RD'}
                     </span>
                   )}
-                  {isCurrentUser && !isPrizePosition && (
+                  {(isCurrentUser && !isPrizePosition) && (
                     <span style={{
-                      fontSize: '9px',
+                      fontSize: isMobile ? '8px' : '9px',
                       background: 'rgba(255, 215, 0, 0.4)',
-                      padding: '2px 5px',
+                      padding: '1px 3px',
                       borderRadius: '3px',
                       color: '#FFD700',
                       fontWeight: 'bold',
@@ -382,23 +399,33 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
                 {/* Tournament Points */}
                 <div style={{ 
                   textAlign: 'center', 
-                  fontSize: '14px', 
+                  fontSize: isMobile ? '11px' : '14px', 
                   fontWeight: 'bold',
                   color: isPrizePosition ? '#FFD700' : '#4AE54A'
                 }}>
                   {entry.tournamentPoints.toLocaleString()}
                 </div>
                 
-                {/* Stats */}
-                <div style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
+                {/* Level */}
+                <div style={{ 
+                  textAlign: 'center', 
+                  fontSize: isMobile ? '11px' : '12px', 
+                  color: 'rgba(255, 255, 255, 0.8)' 
+                }}>
                   {level}
                 </div>
-                <div style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
-                  ${balance.toLocaleString()}
-                </div>
-                <div style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
-                  ${biggestWin.toLocaleString()}
-                </div>
+                
+                {/* Desktop only columns */}
+                {!isMobile && (
+                  <>
+                    <div style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
+                      ${balance.toLocaleString()}
+                    </div>
+                    <div style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
+                      ${biggestWin.toLocaleString()}
+                    </div>
+                  </>
+                )}
               </div>
             );
           })
@@ -409,11 +436,11 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
       {user && userRank > 50 && (
         <div style={{
           marginTop: '8px',
-          padding: '12px',
+          padding: isMobile ? '10px' : '12px',
           background: 'linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.1))',
           borderRadius: '8px',
           border: '2px solid rgba(255, 215, 0, 0.4)',
-          fontSize: '13px',
+          fontSize: isMobile ? '12px' : '13px',
           textAlign: 'center',
           fontWeight: 'bold'
         }}>
@@ -432,13 +459,13 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
           onClick={loadLeaderboard}
           disabled={loading}
           style={{
-            padding: '10px 28px',
+            padding: isMobile ? '8px 20px' : '10px 28px',
             background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(67, 160, 71, 0.9))',
             border: 'none',
             borderRadius: '8px',
             color: 'white',
             cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '14px',
+            fontSize: isMobile ? '12px' : '14px',
             fontWeight: '600',
             opacity: loading ? 0.5 : 1,
             transition: 'all 0.2s',
@@ -448,14 +475,16 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
             boxShadow: '0 2px 8px rgba(76, 175, 80, 0.3)'
           }}
           onMouseEnter={(e) => {
-            if (!loading) {
+            if (!loading && !isMobile) {
               e.currentTarget.style.transform = 'translateY(-2px)';
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.4)';
             }
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(76, 175, 80, 0.3)';
+            if (!isMobile) {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(76, 175, 80, 0.3)';
+            }
           }}
         >
           🔄 Refresh
@@ -464,13 +493,13 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
           <button
             onClick={onClose}
             style={{
-              padding: '10px 28px',
+              padding: isMobile ? '8px 20px' : '10px 28px',
               background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(229, 57, 53, 0.9))',
               border: 'none',
               borderRadius: '8px',
               color: 'white',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: isMobile ? '12px' : '14px',
               fontWeight: '600',
               transition: 'all 0.2s',
               display: 'flex',
@@ -479,12 +508,16 @@ export function Leaderboard({ onClose }: LeaderboardProps) {
               boxShadow: '0 2px 8px rgba(244, 67, 54, 0.3)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.4)';
+              if (!isMobile) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.4)';
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(244, 67, 54, 0.3)';
+              if (!isMobile) {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(244, 67, 54, 0.3)';
+              }
             }}
           >
             ✕ Close
