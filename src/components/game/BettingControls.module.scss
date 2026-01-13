@@ -1,0 +1,205 @@
+// ============================================
+// ROYAL JACKPOT - Betting Controls Styles
+// ============================================
+
+.bettingControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 500px;
+}
+
+// Bet Display
+.betDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.betLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--gray-500);
+  text-transform: uppercase;
+}
+
+.betValue {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.adjustButton {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold-400);
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover:not(:disabled) {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: var(--gold-400);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.betAmount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-width: 120px;
+  justify-content: center;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(251, 191, 36, 0.4);
+  border-radius: var(--radius-lg);
+}
+
+.currency {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--gold-500);
+}
+
+.amount {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold-400);
+}
+
+// Quick Bets
+.quickBets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.quickBetButton {
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-300);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+  }
+
+  &.active {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: var(--gold-400);
+    color: var(--gold-400);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.maxButton {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  border-color: rgba(251, 191, 36, 0.3);
+  color: var(--gold-400);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.15));
+    border-color: var(--gold-400);
+  }
+}
+
+// Potential Win
+.potentialWin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-5);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.potentialLabel {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--gray-500);
+  text-transform: uppercase;
+}
+
+.potentialValue {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Free Spins Notice
+.freeSpinsNotice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.3), rgba(109, 40, 217, 0.1));
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  color: var(--purple-300);
+}
+
+.freeSpinsIcon {
+  font-size: 1rem;
+}
+
+// Responsive
+@media (max-width: 480px) {
+  .adjustButton {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  .betAmount {
+    min-width: 100px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .amount {
+    font-size: 1.5rem;
+  }
+
+  .quickBetButton {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.75rem;
+  }
+}

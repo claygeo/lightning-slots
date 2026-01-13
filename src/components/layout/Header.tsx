@@ -1,221 +1,204 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+// ============================================
+// ROYAL JACKPOT - Header Component
+// Premium navigation with balance & user info
+// ============================================
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
-import { LoginModal } from '@/components/ui/LoginModal';
-import { Leaderboard } from '@/components/ui/Leaderboard';
-import Modal from '@/components/ui/Modal';
-import Button from '@/components/ui/Button';
-import styles from '@/styles/Header.module.css';
+import AuthModal from '@/components/ui/AuthModal';
+import styles from './Header.module.scss';
 
 export default function Header() {
-  const router = useRouter();
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const { user, signOut, saveProgress } = useAuth();
-  const { 
-    balance, 
-    level, 
-    experience, 
-    experienceToNext,
-    totalSpins,
-    biggestWin,
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
+  const {
+    balance,
+    level,
+    experience,
+    experienceToNextLevel,
+    isLoggedIn,
+    player,
     soundEnabled,
+    turboMode,
     toggleSound,
-    getProgressForSync,
-    loadUserProgress,
-    isLoggedIn
+    toggleTurbo,
+    login,
+    logout,
   } = useGameStore();
 
-  const progress = (experience / experienceToNext) * 100;
+  const xpProgress = (experience / experienceToNextLevel) * 100;
 
-  // Sync game progress to database when user is logged in
-  React.useEffect(() => {
-    if (user && isLoggedIn) {
-      const gameProgress = getProgressForSync();
-      
-      // Check if we need to sync (significant changes)
-      const shouldSync = 
-        Math.abs(gameProgress.balance - user.balance) > 100 ||
-        gameProgress.level > user.level ||
-        gameProgress.biggest_win > user.biggest_win ||
-        gameProgress.total_spins > user.total_spins + 10;
-      
-      if (shouldSync) {
-        saveProgress(gameProgress).catch(console.error);
-      }
-    }
-  }, [balance, level, totalSpins, biggestWin, user, isLoggedIn]);
-
-  // Load user progress when user logs in (only once)
-  React.useEffect(() => {
-    if (user && !isLoggedIn) {
-      // User just logged in, load their progress from database
-      loadUserProgress(user);
-    }
-  }, [user?.id]); // Only trigger on user ID change
-
-  const handleSignOut = async () => {
-    try {
-      // Save final progress before signing out
-      if (user) {
-        await saveProgress(getProgressForSync());
-      }
-      
-      // Clear game store auth state
-      const { signOut: gameSignOut } = useGameStore.getState();
-      gameSignOut();
-      
-      // Sign out from auth context
-      await signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+  const handleAuthSuccess = (user: { username: string; id: string }) => {
+    login({
+      id: user.id,
+      username: user.username,
+      pinHash: '',
+      balance: 1000,
+      level: 1,
+      experience: 0,
+      totalSpins: 0,
+      totalWins: 0,
+      totalWagered: 0,
+      biggestWin: 0,
+      currentStreak: 0,
+      bestStreak: 0,
+      achievements: [],
+      vipTier: 'bronze',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastSeen: new Date().toISOString(),
+    });
+    setShowAuthModal(false);
   };
 
-  const handleToggleLeaderboard = () => {
-    setShowLeaderboard(!showLeaderboard);
-  };
-
-  const handleToggleLogin = () => {
-    setShowLoginModal(!showLoginModal);
+  const handleLogout = () => {
+    logout();
+    setShowMenu(false);
   };
 
   return (
     <>
       <header className={styles.header}>
         <div className={styles.container}>
-          {/* Left: Home & Logo */}
-          <div className={styles.left}>
-            <button
-              onClick={() => router.push('/')}
-              className={styles.homeButton}
-              title="Home"
-            >
-              🏠
-            </button>
-            <div className={styles.logo}>
-              <span className={styles.logoIcon}>⚡</span>
-              <span className={styles.logoText}>Lightning Slots™</span>
+          {/* Logo */}
+          <div className={styles.logo}>
+            <span className={styles.logoIcon}>👑</span>
+            <div className={styles.logoText}>
+              <span className={styles.logoTitle}>ROYAL</span>
+              <span className={styles.logoSubtitle}>JACKPOT</span>
             </div>
           </div>
 
-          {/* Center: Balance */}
-          <div className={styles.center}>
-            <div className={styles.balance}>
-              <span className={styles.balanceLabel}>Balance</span>
-              <span className={styles.balanceAmount}>${balance.toFixed(2)}</span>
-            </div>
-          </div>
-
-          {/* Right: Level & Controls */}
-          <div className={styles.right}>
-            <div className={styles.level}>
-              <span className={styles.levelLabel}>Lvl {level}</span>
-              <div className={styles.progressBar}>
-                <div 
-                  className={styles.progressFill} 
-                  style={{ width: `${progress}%` }}
+          {/* Stats Bar (Desktop) */}
+          <div className={styles.statsBar}>
+            {/* Level */}
+            <div className={styles.levelBadge}>
+              <span className={styles.levelLabel}>LVL</span>
+              <span className={styles.levelValue}>{level}</span>
+              <div className={styles.xpBar}>
+                <motion.div
+                  className={styles.xpFill}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${xpProgress}%` }}
+                  transition={{ duration: 0.5 }}
                 />
               </div>
             </div>
-            
-            {/* Auth & Controls - FIXED BUTTONS */}
-            <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {user ? (
-                <>
-                  <button
-                    onClick={handleSignOut}
-                    className="header-btn header-btn-red"
-                    title={`Sign out ${user.username}`}
-                  >
-                    👤
-                  </button>
-                  <button
-                    onClick={handleToggleLeaderboard}
-                    className="header-btn header-btn-purple"
-                    title="Leaderboard"
-                  >
-                    🏆
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={handleToggleLogin}
-                    className="header-btn header-btn-blue"
-                    title="Sign In"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={handleToggleLeaderboard}
-                    className="header-btn header-btn-purple"
-                    title="Leaderboard"
-                  >
-                    🏆
-                  </button>
-                </>
-              )}
-              
-              <button
+
+            {/* Balance */}
+            <div className={styles.balanceBox}>
+              <span className={styles.balanceLabel}>BALANCE</span>
+              <motion.span
+                className={styles.balanceValue}
+                key={balance}
+                initial={{ scale: 1.1 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </motion.span>
+            </div>
+          </div>
+
+          {/* Right Section */}
+          <div className={styles.rightSection}>
+            {/* Settings Buttons */}
+            <div className={styles.settingsButtons}>
+              <motion.button
+                className={`${styles.iconButton} ${soundEnabled ? styles.active : ''}`}
                 onClick={toggleSound}
-                className={styles.soundButton}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                title={soundEnabled ? 'Sound On' : 'Sound Off'}
               >
                 {soundEnabled ? '🔊' : '🔇'}
-              </button>
+              </motion.button>
+              <motion.button
+                className={`${styles.iconButton} ${turboMode ? styles.active : ''}`}
+                onClick={toggleTurbo}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                title={turboMode ? 'Turbo On' : 'Turbo Off'}
+              >
+                ⚡
+              </motion.button>
             </div>
+
+            {/* User Section */}
+            {isLoggedIn && player ? (
+              <div className={styles.userSection}>
+                <button
+                  className={styles.userButton}
+                  onClick={() => setShowMenu(!showMenu)}
+                >
+                  <span className={styles.userAvatar}>
+                    {player.username.charAt(0).toUpperCase()}
+                  </span>
+                  <span className={styles.username}>{player.username}</span>
+                  <span className={styles.chevron}>▼</span>
+                </button>
+
+                <AnimatePresence>
+                  {showMenu && (
+                    <motion.div
+                      className={styles.userMenu}
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <div className={styles.menuHeader}>
+                        <span className={styles.menuUsername}>{player.username}</span>
+                        <span className={styles.menuLevel}>Level {level}</span>
+                      </div>
+                      <div className={styles.menuDivider} />
+                      <button className={styles.menuItem} onClick={handleLogout}>
+                        <span>🚪</span>
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <motion.button
+                className={styles.loginButton}
+                onClick={() => setShowAuthModal(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Sign In
+              </motion.button>
+            )}
           </div>
         </div>
 
-        {/* User Status Bar (Mobile) */}
-        {user && (
-          <motion.div 
-            className="bg-black/20 border-t border-white/10 px-4 py-2"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <div className="flex justify-between items-center text-xs text-gray-300">
-              <span>Welcome, {user.username}</span>
-              <div className="flex gap-4">
-                <span>🎯 {totalSpins} spins</span>
-                <span>💎 ${biggestWin.toLocaleString()} best</span>
-              </div>
+        {/* Mobile Balance Bar */}
+        <div className={styles.mobileBar}>
+          <div className={styles.mobileLevel}>
+            <span>LVL {level}</span>
+            <div className={styles.mobileXpBar}>
+              <div className={styles.mobileXpFill} style={{ width: `${xpProgress}%` }} />
             </div>
-          </motion.div>
-        )}
-        
-        {/* Guest Warning Bar */}
-        {!user && (
-          <motion.div 
-            className="bg-yellow-900/30 border-t border-yellow-500/20 px-4 py-2"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-          >
-            <div className="text-center text-xs text-yellow-300">
-              ⚠️ Playing as Guest - Progress won't be saved
-            </div>
-          </motion.div>
-        )}
+          </div>
+          <div className={styles.mobileBalance}>
+            <span className={styles.mobileBalanceLabel}>$</span>
+            <span className={styles.mobileBalanceValue}>
+              {balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
       </header>
 
-      {/* Modals */}
-      <LoginModal 
-        isOpen={showLoginModal} 
-        onClose={() => setShowLoginModal(false)} 
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
       />
-      
-      <Modal 
-        isOpen={showLeaderboard} 
-        onClose={() => setShowLeaderboard(false)}
-        title=""
-      >
-        <Leaderboard onClose={() => setShowLeaderboard(false)} />
-      </Modal>
     </>
   );
 }
