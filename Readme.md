@@ -1,4 +1,4 @@
-# Lightning Slots™
+# Lightning Slots
 
 A full-featured browser-based slot machine game built with Next.js, featuring a custom game engine with proper slot mathematics, a Lightning Round bonus mechanic, player progression, Supabase-backed leaderboards, and Framer Motion animations. Designed as a mobile-first social casino experience.
 
